@@ -1,13 +1,16 @@
 package com.codetest.app.auth;
 
+import com.codetest.auth.AuthResult;
 import com.codetest.auth.AuthService;
 import com.codetest.auth.UserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import org.springframework.web.server.ResponseStatusException;
 
 public class AuthenticatedUserArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -27,20 +30,29 @@ public class AuthenticatedUserArgumentResolver implements HandlerMethodArgumentR
 
     @Override
     public Object resolveArgument(MethodParameter parameter,
-                                  ModelAndViewContainer mavContainer,
-                                  NativeWebRequest webRequest,
-                                  WebDataBinderFactory binderFactory) {
+            ModelAndViewContainer mavContainer,
+            NativeWebRequest webRequest,
+            WebDataBinderFactory binderFactory) {
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
         return resolveUserDetails(request);
     }
 
     private UserDetails resolveUserDetails(HttpServletRequest request) {
-        /* TODO (Candidate)
-         *  Extract the token using `request.getHeader("Authorization")`
-         *  and use `authService.authenticate(String jwt)` to get the user if the token is valid,
-         *  or return a 401 Status if not valid, or malformed etc..
-         *  returning a `UserDetails` object from resolveArgument will automagically inject it into the Controller method call.
-         */
-        throw new UnsupportedOperationException("Implement Me");
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+
+        String token = authHeader.substring(BEARER_PREFIX.length());
+
+        AuthResult result = authService.authenticate(token);
+
+        if (result instanceof AuthResult.Authenticated auth) {
+            return auth.user();
+        }
+
+        // Fail with 401 as expected
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
 }

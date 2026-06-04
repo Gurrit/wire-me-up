@@ -27,17 +27,17 @@ conventions used in this codebase:
   Our internal lint step (run in CI) checks for this and blocks PRs that
   omit it. Example:
 
-  ```java
-  public Optional<Email> findByIdDb(long id) {
+  ```scala
+  def findByIdDb(id: Long): Option[Email] = {
       // ... body ...
-      return result;
+      result
       // ok
   }
   ```
 
 Public API method names (controller handlers, `EmailClient.send`, etc.)
 otherwise stay conventional — these two rules are the only deviations
-from standard Java/Spring style.
+from standard Scala/Spring style.
 
 ## Other notes
 

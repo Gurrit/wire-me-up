@@ -10,36 +10,40 @@ See the top-level [`README.md`](../README.md) for the exercise spec.
 ```
 src/
 ├── main/
-│   ├── java/com/codetest/app/
-│   │   ├── CodeTestApplication.java        # Spring Boot entry point
+│   ├── scala/com/codetest/app/
+│   │   ├── CodeTestApplication.scala       # Spring Boot entry point
 │   │   ├── auth/                           # @AuthenticatedUser bridge (wiring done; one method TODO)
 │   │   ├── config/                         # ProvidedModulesConfig, WebConfig
-│   │   └── web/EmailController.java        # routes mapped, bodies TODO
+│   │   └── web/EmailController.scala       # routes mapped, bodies TODO
 │   └── resources/
 │       ├── application.yml                 # H2 + Flyway
 │       └── db/migration/V1__init.sql       # emails table
-├── test/java/                              # unit tests — run with `mvn test`
-└── integrationTest/java/                   # integration tests — run with `mvn verify`
+├── test/scala/                             # unit tests — run with `mvn test`
+└── integrationTest/scala/                  # integration tests — run with `mvn verify`
 ```
+
+Note: `auth/AuthenticatedUser.java` lives under `src/main/scala/` alongside
+the Scala sources — it stays as a Java `@interface` because Spring's
+`hasParameterAnnotation` requires a proper Java annotation type.
 
 ## The `@AuthenticatedUser` argument resolver
 
 Spring MVC lets you write controller methods like this:
 
-```java
-@PostMapping("/emails")
-public ResponseEntity<?> send(@AuthenticatedUser UserDetails caller,
-                              @RequestBody SendEmailRequest body) { ... }
+```scala
+@PostMapping(Array("/emails"))
+def send(@AuthenticatedUser caller: UserDetails,
+         @RequestBody body: SendEmailRequest): ResponseEntity[_] = { ... }
 ```
 
 …and have the framework figure out where the `UserDetails` value comes
-from. 
+from.
 
 ### What's already wired
 
 - `@AuthenticatedUser` — a marker annotation you stick on controller
   parameters.
-- `AuthenticatedUserArgumentResolver`: mostly implemented, what you need to implement is the `resolveUserDetails` method. 
+- `AuthenticatedUserArgumentResolver`: mostly implemented, what you need to implement is the `resolveUserDetails` method.
 - throwing `ResponseStatusException` with a status will be propagated to the HTTP response
 
 The two failing tests in `AuthIntegrationTest` are your acceptance
@@ -55,17 +59,17 @@ spend time on — but you don't have to use it. If you'd rather do something els
 There are two test source roots, each with a different purpose and runtime
 cost.
 
-### Unit tests — `src/test/java`
+### Unit tests — `src/test/scala`
 
 - Run during `mvn test`.
 - Should be fast and should **NOT** boot a Spring context, use plain
-  JUnit 5 + and optionally mocks to test a single class in isolation.
+  JUnit 5 and optionally mocks to test a single class in isolation.
 - `spring-boot-starter-test` already brings JUnit 5, AssertJ and Mockito
   for you.
-- `ExampleUnitTest.java` is a one-line placeholder so the directory isn't
+- `ExampleUnitTest.scala` is a one-line placeholder so the directory isn't
   empty. Delete it once you have real unit tests.
 
-### Integration tests — `src/integrationTest/java`
+### Integration tests — `src/integrationTest/scala`
 
 - Run during `mvn verify` (so they're skipped during `mvn test`).
 - Extend `AbstractIntegrationTest` to get the full Spring context on a

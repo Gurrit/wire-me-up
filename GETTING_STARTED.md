@@ -16,7 +16,7 @@ gives you working auth across both endpoints.
 
 ## 2. Implement auth first
 
-The failing tests live in `app/src/integrationTest/java/.../AuthIntegrationTest`.
+The failing tests live in `app/src/integrationTest/scala/.../AuthIntegrationTest`.
 They exercise `AuthenticatedUserArgumentResolver.resolveUserDetails`,
 which is the only TODO in the auth bridge. Everything around it
 (`@AuthenticatedUser`, the `WebConfig` registration, the controller
@@ -32,7 +32,7 @@ without further work.
 With auth solid, the rest is the standard HTTP-controller arc:
 
 - Decide the request shape — add fields to
-  [`SendEmailRequest`](app/src/main/java/com/codetest/app/web/SendEmailRequest.java)
+  [`SendEmailRequest`](app/src/main/scala/com/codetest/app/web/SendEmailRequest.scala)
   and (optionally) validation annotations.
 - Decide the response shape and write whatever DTOs / mappers you need.
 - Implement the logic and persistence layer for both the endpoints. 

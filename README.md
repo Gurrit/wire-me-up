@@ -29,7 +29,7 @@ This is a multi-module Maven project.
 .
 ├── email-client/   # provided — do not modify (third-party-style SDK)
 ├── auth-server/    # provided — do not modify (JWT decoding)
-└── app/            # your workspace (Spring Boot 3 / Java 21)
+└── app/            # your workspace (Spring Boot 3 / Scala 2.13)
 ```
 
 feel free to update build tooling as you wish as long as `email-client` and `auth-server` stays the same.
@@ -53,7 +53,7 @@ A handful of pre-baked tokens for testing are listed at the bottom of this
 README.
 
 ### `app/` — this is where you work
-A **Spring Boot 3 / Java 21** application skeleton. It already has:
+A **Spring Boot 3 / Scala 2.13** application skeleton. It already has:
 
 - the two provided modules on the classpath, exposed as Spring beans in
   `ProvidedModulesConfig`

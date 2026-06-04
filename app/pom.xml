@@ -13,7 +13,16 @@
     <artifactId>app</artifactId>
     <name>app (candidate workspace)</name>
 
+    <properties>
+        <scala.version>2.13.16</scala.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
         <!-- Provided modules -->
         <dependency>
             <groupId>com.codetest</groupId>
@@ -60,6 +69,23 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>4.9.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <scalaVersion>${scala.version}</scalaVersion>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
@@ -80,13 +106,19 @@
                                 scanning.
                             -->
                             <classifier>exec</classifier>
+                            <!--
+                                The Scala companion object compiles to a class
+                                with a static main; Spring Boot needs an explicit
+                                hint to find it.
+                            -->
+                            <mainClass>com.codetest.app.CodeTestApplication</mainClass>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
             <!--
-                Register src/integrationTest/java as an additional test
+                Register src/integrationTest/scala as an additional test
                 source root. Files there are compiled with the rest of the
                 test classpath but run separately (see failsafe below).
             -->
@@ -102,7 +134,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>src/integrationTest/java</source>
+                                <source>src/integrationTest/scala</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -124,7 +156,7 @@
             </plugin>
 
             <!--
-                Unit tests: anything in src/test/java named *Test, run in
+                Unit tests: anything in src/test/scala named *Test, run in
                 the `test` phase. *IntegrationTest is explicitly excluded
                 so `mvn test` stays fast.
             -->
@@ -133,13 +165,13 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/*IntegrationTest.java</exclude>
+                        <exclude>**/*IntegrationTest</exclude>
                     </excludes>
                 </configuration>
             </plugin>
 
             <!--
-                Integration tests: anything in src/integrationTest/java
+                Integration tests: anything in src/integrationTest/scala
                 named *IntegrationTest, run in the `verify` phase.
             -->
             <plugin>
@@ -155,7 +187,7 @@
                 </executions>
                 <configuration>
                     <includes>
-                        <include>**/*IntegrationTest.java</include>
+                        <include>**/*IntegrationTest</include>
                     </includes>
                 </configuration>
             </plugin>
